@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	chaincode, err := contractapi.NewChaincode(new(chaincode2.SmartContract))
+	chaincode, err := contractapi.NewChaincode(new(chaincode2.TransactionContract))
 	if err != nil {
 		log.Panicf("Error creating transaction chaincode: %s", err.Error())
 	}
