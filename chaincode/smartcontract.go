@@ -3,11 +3,10 @@ package chaincode
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/hyperledger/fabric-contract-api-go/v2/contractapi"
 )
-
-//! Remaining to Maintain CreatedDate as per Hyperledger Fabric Timestamp
 
 type TransactionContract struct {
 	contractapi.Contract
@@ -35,7 +34,10 @@ func (t *TransactionContract) InitiateTransaction(ctx contractapi.TransactionCon
 		return fmt.Errorf("transaction %s already exists", transactionId)
 
 	}
-
+	err = transactionInitiate.setCreatedAt(ctx)
+	if err != nil {
+		return err
+	}
 	trxJson, err := json.Marshal(transactionInitiate)
 
 	if err != nil {
@@ -111,7 +113,10 @@ func (t *TransactionContract) UpdateTransactionProcess(ctx contractapi.Transacti
 			}
 		}
 	}
-
+	err = transactionData.setCreatedAt(ctx)
+	if err != nil {
+		return err
+	}
 	trxJson, err := json.Marshal(transactionData)
 	if err != nil {
 		return err
@@ -162,6 +167,10 @@ func (t *TransactionContract) AddRecipientPayment(ctx contractapi.TransactionCon
 	transaction.addTransactionProcess(recipientGroupPayment.TransactionProcess)
 
 	transaction.TransactionPayment = append(transaction.TransactionPayment, recipientGroupPayment.TransactionPayment)
+	err = transaction.setCreatedAt(ctx)
+	if err != nil {
+		return err
+	}
 	trxJson, err := json.Marshal(transaction)
 	if err != nil {
 		return err
@@ -191,7 +200,10 @@ func (t *TransactionContract) AddMemberPayment(ctx contractapi.TransactionContex
 			break
 		}
 	}
-
+	err = transaction.setCreatedAt(ctx)
+	if err != nil {
+		return err
+	}
 	txnJson, err := json.Marshal(transaction)
 	if err != nil {
 		return err
@@ -210,6 +222,15 @@ func (t *TransactionInitiate) addTransactionProcess(transactionProcess Transacti
 		}
 	}
 
+}
+
+func (t *TransactionInitiate) setCreatedAt(ctx contractapi.TransactionContextInterface) error {
+	timestamp, err := ctx.GetStub().GetTxTimestamp()
+	if err != nil {
+		return err
+	}
+	t.CreatedAt = time.Unix(timestamp.Seconds, int64(timestamp.Nanos))
+	return nil
 }
 
 func (t *TransactionContract) TrxExists(ctx contractapi.TransactionContextInterface, id string) (bool, error) {
