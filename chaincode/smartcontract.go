@@ -18,12 +18,11 @@ func (t *TransactionContract) InitiateTransaction(ctx contractapi.TransactionCon
 
 	var transactionInitiate TransactionInitiate
 
-	transactionId := string(transactionInitiate.Id)
-
 	err := json.Unmarshal([]byte(transactionJson), &transactionInitiate)
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal Json: %v", err)
 	}
+	transactionId := string(transactionInitiate.Id)
 	fmt.Printf("Deserialized data: %+v\n", transactionInitiate)
 
 	exists, err := t.TrxExists(ctx, string(transactionId))

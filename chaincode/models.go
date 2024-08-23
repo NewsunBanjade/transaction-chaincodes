@@ -4,12 +4,11 @@ import "time"
 
 // *Basic Data Stucts
 type TransactionInitiate struct {
-	Id   int    `json:"Id"`
-	Name string `json:"Name"`
-
+	Id                   int                  `json:"Id"`
+	Name                 string               `json:"Name"`
 	Guid                 string               `json:"Guid"`
 	Amount               float64              `json:"Amount"`
-	TransferredAmount    *float64             `json:"TransferredAmount omitempty"`
+	TransferredAmount    *float64             `json:"TransferredAmount "`
 	RecipientGroup       RecipientGroup       `json:"RecipientGroup"`
 	Project              Project              `json:"Project"`
 	TransactionPhase     TransactionPhase     `json:"TransactionPhase"`
@@ -17,7 +16,7 @@ type TransactionInitiate struct {
 	TransactionProcesses []TransactionProcess `json:"TransactionProcesses"`
 	TransactionMembers   []TransactionMember  `json:"TransactionMembers"`
 	TransactionPayment   []TransactionPayment `json:"TransactionPayment"`
-	CreatedAt            time.Time            `json:"CreatedAt omitempty"`
+	CreatedAt            time.Time            `json:"CreatedAt"`
 }
 
 type RecipientGroup struct {
@@ -56,9 +55,9 @@ type TransactionProcess struct {
 	Id                        int                       `json:"Id"`
 	Name                      string                    `json:"Name"`
 	TransactionId             int                       `json:"TransactionId"`
-	MemberId                  *int                      `json:"MemberId"`
-	Remarks                   *string                   `json:"Remarks omitempty"`
-	StatusModifiedDate        *time.Time                `json:"StatusModifiedDate"`
+	MemberId                  *int                      `json:"MemberId "`
+	Remarks                   *string                   `json:"Remarks "`
+	StatusModifiedDate        *time.Time                `json:"StatusModifiedDate "`
 	ApproverType              ApproverType              `json:"ApproverType"`
 	TransactionForwardPurpose TransactionForwardPurpose `json:"TransactionForwardPurpose"`
 	TransactionStatus         TransactionStatus         `json:"TransactionStatus"`
@@ -81,7 +80,7 @@ type TransactionPayment struct {
 	PaymentReference          string        `json:"PaymentReference"`
 	PaymentAmount             float64       `json:"PaymentAmount"`
 	PaymentDate               time.Time     `json:"PaymentDate"`
-	Remarks                   *string       `json:"Remarks omitempty"`
+	Remarks                   *string       `json:"Remarks "`
 	PaymentMethod             PaymentMethod `json:"PaymentMethod"`
 	BankAccount               BankAccount   `json:"BankAccount"`
 	RecipientGroupBankAccount BankAccount   `json:"RecipientGroupBankAccount"`
@@ -93,7 +92,7 @@ type TransactionMemberPayment struct {
 	PaymentReference    string        `json:"PaymentReference"`
 	PaymentAmount       float64       `json:"PaymentAmount"`
 	PaymentDate         time.Time     `json:"PaymentDate"`
-	Remarks             *string       `json:"Remarks omitempty"`
+	Remarks             *string       `json:"Remarks "`
 	PaymentMethod       PaymentMethod `json:"PaymentMethod"`
 }
 
@@ -102,7 +101,7 @@ type TransactionMember struct {
 	TransactionId             int                        `json:"TransactionId"`
 	MemberId                  int                        `json:"MemberId"`
 	Amount                    float64                    `json:"Amount"`
-	TransferredAmount         *float64                   `json:"TransferredAmount omitempty"`
+	TransferredAmount         *float64                   `json:"TransferredAmount"`
 	TransactionStatus         *TransactionStatus         `json:"TransactionStatus"`
 	Member                    Member                     `json:"Member"`
 	TransactionMemberPayments []TransactionMemberPayment `json:"TransactionMemberPayments"`
