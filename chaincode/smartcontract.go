@@ -108,7 +108,11 @@ func (t *TransactionContract) UpdateTransactionProcess(ctx contractapi.Transacti
 	for i, trx := range transactionData.TransactionProcesses {
 		for _, trxProcess := range updateTransactionProcess.TransactionProcesses {
 			if trx.Id == trxProcess.Id {
-				transactionData.TransactionProcesses = append(transactionData.TransactionProcesses[:i], trx)
+				newTrxProcess := trx
+				newTrxProcess.Remarks = trxProcess.Remarks
+				newTrxProcess.StatusModifiedDate = trxProcess.StatusModifiedDate
+				newTrxProcess.TransactionStatus = trx.TransactionStatus
+				transactionData.TransactionProcesses = append(transactionData.TransactionProcesses[:i], newTrxProcess)
 			}
 		}
 	}
@@ -165,7 +169,7 @@ func (t *TransactionContract) AddRecipientPayment(ctx contractapi.TransactionCon
 
 	transaction.addTransactionProcess(recipientGroupPayment.TransactionProcess)
 
-	transaction.TransactionPayment = append(transaction.TransactionPayment, recipientGroupPayment.TransactionPayment)
+	transaction.TransactionPayments = append(transaction.TransactionPayments, recipientGroupPayment.TransactionPayment)
 	err = transaction.setCreatedAt(ctx)
 	if err != nil {
 		return err

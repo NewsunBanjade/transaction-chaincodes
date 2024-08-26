@@ -3,19 +3,20 @@ package chaincode
 import "time"
 
 // *Basic Data Stucts
+// Transaction Models
 type TransactionInitiate struct {
 	Id                   int                  `json:"Id"`
 	Name                 string               `json:"Name"`
 	Guid                 string               `json:"Guid"`
 	Amount               float64              `json:"Amount"`
-	TransferredAmount    *float64             `json:"TransferredAmount "`
+	TransferredAmount    *float64             `json:"TransferredAmount"`
 	RecipientGroup       RecipientGroup       `json:"RecipientGroup"`
 	Project              Project              `json:"Project"`
 	TransactionPhase     TransactionPhase     `json:"TransactionPhase"`
 	TransactionStatus    *TransactionStatus   `json:"TransactionStatus"`
 	TransactionProcesses []TransactionProcess `json:"TransactionProcesses"`
 	TransactionMembers   []TransactionMember  `json:"TransactionMembers"`
-	TransactionPayment   []TransactionPayment `json:"TransactionPayment"`
+	TransactionPayments  []TransactionPayment `json:"TransactionPayments"`
 	CreatedAt            time.Time            `json:"CreatedAt"`
 }
 
@@ -55,9 +56,9 @@ type TransactionProcess struct {
 	Id                        int                       `json:"Id"`
 	Name                      string                    `json:"Name"`
 	TransactionId             int                       `json:"TransactionId"`
-	MemberId                  *int                      `json:"MemberId "`
-	Remarks                   *string                   `json:"Remarks "`
-	StatusModifiedDate        *time.Time                `json:"StatusModifiedDate "`
+	MemberId                  *int                      `json:"MemberId"`
+	Remarks                   *string                   `json:"Remarks"`
+	StatusModifiedDate        *string                   `json:"StatusModifiedDate "`
 	ApproverType              ApproverType              `json:"ApproverType"`
 	TransactionForwardPurpose TransactionForwardPurpose `json:"TransactionForwardPurpose"`
 	TransactionStatus         TransactionStatus         `json:"TransactionStatus"`
@@ -79,7 +80,7 @@ type TransactionPayment struct {
 	TransactionId             int           `json:"TransactionId"`
 	PaymentReference          string        `json:"PaymentReference"`
 	PaymentAmount             float64       `json:"PaymentAmount"`
-	PaymentDate               time.Time     `json:"PaymentDate"`
+	PaymentDate               string        `json:"PaymentDate"`
 	Remarks                   *string       `json:"Remarks "`
 	PaymentMethod             PaymentMethod `json:"PaymentMethod"`
 	BankAccount               BankAccount   `json:"BankAccount"`
@@ -91,8 +92,8 @@ type TransactionMemberPayment struct {
 	TransactionMemberId int           `json:"TransactionMemberId"`
 	PaymentReference    string        `json:"PaymentReference"`
 	PaymentAmount       float64       `json:"PaymentAmount"`
-	PaymentDate         time.Time     `json:"PaymentDate"`
-	Remarks             *string       `json:"Remarks "`
+	PaymentDate         string        `json:"PaymentDate"`
+	Remarks             *string       `json:"Remarks"`
 	PaymentMethod       PaymentMethod `json:"PaymentMethod"`
 }
 
