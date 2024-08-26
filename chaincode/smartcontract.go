@@ -11,21 +11,148 @@ import (
 type TransactionContract struct {
 	contractapi.Contract
 }
+type TransactionInitiate struct {
+	Id                   int                  `json:"Id"`
+	Name                 string               `json:"Name"`
+	Guid                 string               `json:"Guid"`
+	Amount               float64              `json:"Amount"`
+	TransferredAmount    *float64             `json:"TransferredAmount"`
+	RecipientGroup       RecipientGroup       `json:"RecipientGroup"`
+	Project              Project              `json:"Project"`
+	TransactionPhase     TransactionPhase     `json:"TransactionPhase"`
+	TransactionStatus    *TransactionStatus   `json:"TransactionStatus"`
+	TransactionProcesses []TransactionProcess `json:"TransactionProcesses"`
+	TransactionMembers   []TransactionMember  `json:"TransactionMembers"`
+	TransactionPayments  []TransactionPayment `json:"TransactionPayments"`
+	CreatedAt            time.Time            `json:"CreatedAt"`
+}
+
+type RecipientGroup struct {
+	Id   int    `json:"Id"`
+	Name string `json:"Name"`
+}
+
+type Project struct {
+	Id   int    `json:"Id"`
+	Name string `json:"Name"`
+}
+
+type TransactionPhase struct {
+	Id   int    `json:"Id"`
+	Name string `json:"Name"`
+}
+type TransactionStatus struct {
+	Id   int    `json:"Id"`
+	Name string `json:"Name"`
+}
+type TransactionForwardPurpose struct {
+	Id   int    `json:"Id"`
+	Name string `json:"Name"`
+}
+
+type ApproverType struct {
+	Id   int    `json:"Id"`
+	Name string `json:"Name"`
+}
+
+type PaymentMethod struct {
+	Id   int    `json:"Id"`
+	Name string `json:"Name"`
+}
+type TransactionProcess struct {
+	Id                        int                       `json:"Id"`
+	Name                      string                    `json:"Name"`
+	TransactionId             int                       `json:"TransactionId"`
+	MemberId                  *int                      `json:"MemberId"`
+	Remarks                   *string                   `json:"Remarks"`
+	StatusModifiedDate        *string                   `json:"StatusModifiedDate "`
+	ApproverType              ApproverType              `json:"ApproverType"`
+	TransactionForwardPurpose TransactionForwardPurpose `json:"TransactionForwardPurpose"`
+	TransactionStatus         TransactionStatus         `json:"TransactionStatus"`
+}
+type Member struct {
+	Id   int    `json:"Id"`
+	Name string `json:"Name"`
+	Code string `json:"Code"`
+}
+
+type BankAccount struct {
+	Id            int    `json:"Id"`
+	BankName      string `json:"BankName"`
+	AccountNumber string `json:"AccountNumber"`
+}
+
+type TransactionPayment struct {
+	Id                        int           `json:"Id"`
+	TransactionId             int           `json:"TransactionId"`
+	PaymentReference          string        `json:"PaymentReference"`
+	PaymentAmount             float64       `json:"PaymentAmount"`
+	PaymentDate               string        `json:"PaymentDate"`
+	Remarks                   *string       `json:"Remarks "`
+	PaymentMethod             PaymentMethod `json:"PaymentMethod"`
+	BankAccount               BankAccount   `json:"BankAccount"`
+	RecipientGroupBankAccount BankAccount   `json:"RecipientGroupBankAccount"`
+}
+
+type TransactionMemberPayment struct {
+	Id                  int           `json:"Id"`
+	TransactionMemberId int           `json:"TransactionMemberId"`
+	PaymentReference    string        `json:"PaymentReference"`
+	PaymentAmount       float64       `json:"PaymentAmount"`
+	PaymentDate         string        `json:"PaymentDate"`
+	Remarks             *string       `json:"Remarks"`
+	PaymentMethod       PaymentMethod `json:"PaymentMethod"`
+}
+
+type TransactionMember struct {
+	Id                        int                        `json:"Id"`
+	TransactionId             int                        `json:"TransactionId"`
+	MemberId                  int                        `json:"MemberId"`
+	Amount                    float64                    `json:"Amount"`
+	TransferredAmount         *float64                   `json:"TransferredAmount"`
+	TransactionStatus         *TransactionStatus         `json:"TransactionStatus"`
+	Member                    Member                     `json:"Member"`
+	TransactionMemberPayments []TransactionMemberPayment `json:"TransactionMemberPayments"`
+}
+
+//* Update Struct's
+
+type UpdateTransactionProcess struct {
+	Id                   int                  `json:"Id"`
+	TransactionPhase     TransactionPhase     `json:"TransactionPhase"`
+	TransactionProcesses []TransactionProcess `json:"TransactionProcesses"`
+}
+
+type RecipientGroupPayment struct {
+	Id                 int                `json:"id"`
+	TransferredAmount  float64            `json:"TransferredAmount"`
+	TransactionStatus  TransactionStatus  `json:"TransactionStatus"`
+	TransactionProcess TransactionProcess `json:"TransactionProcess"`
+	TransactionPayment TransactionPayment `json:"TransactionPayment"`
+}
+
+type UpdateMemberTransaction struct {
+	Id                 int                `json:"id"`
+	TransactionPhase   TransactionPhase   `json:"TransactionPhase"`
+	TransactionProcess TransactionProcess `json:"TransactionProcess"`
+	TransactionMember  TransactionMember  `json:"TransactionMember"`
+}
 
 //* Contract Methods
 
-func (t *TransactionContract) InitiateTransaction(ctx contractapi.TransactionContextInterface, transactionJson string) error {
+func (t *TransactionContract) InitiateTransaction(ctx contractapi.TransactionContextInterface, transactionJson []byte) error {
 
 	var transactionInitiate TransactionInitiate
 
-	err := json.Unmarshal([]byte(transactionJson), &transactionInitiate)
+	err := json.Unmarshal(transactionJson, &transactionInitiate)
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal Json: %v", err)
 	}
 	transactionId := string(transactionInitiate.Id)
 	fmt.Printf("Deserialized data: %+v\n", transactionInitiate)
+	fmt.Println(transactionId)
 
-	exists, err := t.TrxExists(ctx, string(transactionId))
+	exists, err := t.TrxExists(ctx, transactionId)
 	if err != nil {
 		return err
 	}
@@ -42,12 +169,13 @@ func (t *TransactionContract) InitiateTransaction(ctx contractapi.TransactionCon
 	if err != nil {
 		return err
 	}
+	fmt.Println(trxJson)
 
-	return ctx.GetStub().PutState(transactionJson, trxJson)
+	return ctx.GetStub().PutState(transactionId, trxJson)
 
 }
 
-func (t *TransactionContract) GetAllTransactions(ctx contractapi.TransactionContextInterface) ([]*TransactionInitiate, error) {
+func (t *TransactionContract) ReadAllTransactions(ctx contractapi.TransactionContextInterface) ([]*TransactionInitiate, error) {
 	resultsIterator, err := ctx.GetStub().GetStateByRange("", "")
 	if err != nil {
 		return nil, err
@@ -60,6 +188,7 @@ func (t *TransactionContract) GetAllTransactions(ctx contractapi.TransactionCont
 			return nil, err
 		}
 		var transaction TransactionInitiate
+		fmt.Println(queryResponse.Value)
 		err = json.Unmarshal(queryResponse.Value, &transaction)
 		if err != nil {
 			return nil, err
@@ -78,7 +207,7 @@ func (t *TransactionContract) GetTransactionById(ctx contractapi.TransactionCont
 	if transactionJson == nil {
 		return nil, fmt.Errorf("transaction %s does not exist", id)
 	}
-	transaction := new(TransactionInitiate)
+	var transaction *TransactionInitiate
 	err = json.Unmarshal(transactionJson, transaction)
 	if err != nil {
 		return nil, err
@@ -86,11 +215,11 @@ func (t *TransactionContract) GetTransactionById(ctx contractapi.TransactionCont
 	return transaction, nil
 }
 
-func (t *TransactionContract) UpdateTransactionProcess(ctx contractapi.TransactionContextInterface, updatedTransactionProcessJson string) error {
+func (t *TransactionContract) UpdateTransactionProcess(ctx contractapi.TransactionContextInterface, updatedTransactionProcessJson []byte) error {
 
 	var updateTransactionProcess UpdateTransactionProcess
 
-	err := json.Unmarshal([]byte(updatedTransactionProcessJson), &updateTransactionProcess)
+	err := json.Unmarshal((updatedTransactionProcessJson), &updateTransactionProcess)
 
 	if err != nil {
 		return err
@@ -152,7 +281,7 @@ func (t *TransactionContract) GetTransactionHistory(ctx contractapi.TransactionC
 
 }
 
-func (t *TransactionContract) AddRecipientPayment(ctx contractapi.TransactionContextInterface, recipientJson string) error {
+func (t *TransactionContract) AddRecipientPayment(ctx contractapi.TransactionContextInterface, recipientJson []byte) error {
 
 	var recipientGroupPayment RecipientGroupPayment
 	err := json.Unmarshal([]byte(recipientJson), &recipientGroupPayment)
@@ -182,7 +311,7 @@ func (t *TransactionContract) AddRecipientPayment(ctx contractapi.TransactionCon
 
 }
 
-func (t *TransactionContract) AddMemberPayment(ctx contractapi.TransactionContextInterface, memberPaymentJson string) error {
+func (t *TransactionContract) AddMemberPayment(ctx contractapi.TransactionContextInterface, memberPaymentJson []byte) error {
 	var memberPayment UpdateMemberTransaction
 	err := json.Unmarshal([]byte(memberPaymentJson), &memberPayment)
 	if err != nil {
